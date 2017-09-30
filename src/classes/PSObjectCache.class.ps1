@@ -10,7 +10,7 @@ class PSObjectCache
         $this.LookupTable = @{}
     }
 
-    [psobject]Get([string]$Key){
+    [psobject]Get($Key){
         if($this.LookupTable.Contains($Key)){
             return $this.LookupTable[$Key]
         }
