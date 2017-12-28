@@ -15,7 +15,7 @@ function New-PSCache {
             $SubAST -is [System.Management.Automation.Language.VariableExpressionAst]
         },$false)
 
-        if($VariableExpressions.Where({$_.VariablePath.UserPath -eq '_'})){
+        if($VariableExpressions.Where({$_.VariablePath.UserPath -in @('_','psitem')})){
             $ScriptBlock = [scriptblock]::Create($($ScriptBlock -replace "^$([regex]::Escape($AST.ParamBlock.Extent))",'param([Alias("PsItem")]$$_)'))
         }
     }
