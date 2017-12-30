@@ -18,4 +18,12 @@ class PSObjectCache
             return ($this.LookupTable[$Key] = try{& $this.Fetcher $Key}catch{$null})
         }
     }
+    
+    [void]Remove(){
+        $this.LookupTable.Remove()
+    }
+    
+    [void]Clear(){
+        $this.LookupTable.Clear()
+    }
 }
