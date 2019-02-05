@@ -15,12 +15,30 @@ class PSObjectCache
             return $this.LookupTable[$Key]
         }
         else{
-            return ($this.LookupTable[$Key] = try{& $this.Fetcher $Key}catch{$null})
+            try{
+                $copy = & $this.Fetcher $Key
+                return ($this.LookupTable[$Key] = $copy)
+            }
+            catch{
+                $this.LookupTable.Remove($Key)
+                throw $_
+            }
+            return $null
         }
     }
+
+    [void]AddOrUpdate($Key,$Item){
+        $this.LookupTable[$Key] = $Item
+    }
     
-    [void]Remove(){
-        $this.LookupTable.Remove()
+    [void]Remove($Key){
+        $this.LookupTable.Remove($Key)
+    }
+
+    [void]Remove([scriptblock]$KeyPredicate){
+        foreach($key in $this.LookupTable.Keys.Where($KeyPredicate)){
+            $this.Remove($key)
+        }
     }
     
     [void]Clear(){
