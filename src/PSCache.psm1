@@ -6,7 +6,9 @@ $Public  = Get-ChildItem (Join-Path $PSScriptRoot Public)  -ErrorAction Silently
 $Private = Get-ChildItem (Join-Path $PSScriptRoot Private) -ErrorAction SilentlyContinue -Filter *.ps1
 
 # Classes on which other classes might depend, must be specified in order
-$ClassDependees = @()
+$ClassDependees = @(
+    'PSObjectCache'
+)
 
 # Import classes on which others depend first
 foreach($classDependee in $ClassDependees)
