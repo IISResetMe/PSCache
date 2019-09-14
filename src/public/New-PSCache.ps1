@@ -8,7 +8,7 @@ function New-PSCache {
         $ScriptBlock,
 
         [Parameter(ParameterSetName = 'Max')]
-        [ValidateSet('LRU','MRU')]
+        [ValidateSet('LRU','MRU','LFU')]
         [string]
         $EvictionPolicy,
 
@@ -39,6 +39,9 @@ function New-PSCache {
 
         if($EvictionPolicy -eq 'MRU'){
             $cacheType = [MRUCache]
+        }
+        if($EvictionPolicy -eq 'LFU'){
+            $cacheType = [LFUCache]
         }
 
         return $cacheType::new($ScriptBlock, $Capacity)
