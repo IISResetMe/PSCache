@@ -22,8 +22,7 @@ class LRUCache : PSObjectCache
 
     [int]$Capacity
 
-    LRUCache([scriptblock]$Fetcher,[int]$Capacity)
-        : base($Fetcher)
+    LRUCache([scriptblock]$Fetcher,[int]$Capacity) : base($Fetcher)
     {
         $this.Capacity = $Capacity
         $this.Entries = [LinkedList[LRUCacheEntry]]::new()
@@ -42,7 +41,8 @@ class LRUCache : PSObjectCache
         return
     }
 
-    [psobject]Get($Key){
+    [psobject]
+    Get($Key){
         if($this.LookupTable.Contains($Key)){
             $CacheEntry = $this.LookupTable[$Key]
             $this.Promote($CacheEntry)
