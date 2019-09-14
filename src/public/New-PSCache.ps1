@@ -2,18 +2,19 @@ function New-PSCache {
     [CmdletBinding(DefaultParameterSetName = 'PSObject')]
     param (        
         [Alias('Fetcher')]
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory, Position = 0)]
         [ValidateScript({$_.Ast.ParamBlock.Parameters.Count -in 0..1})]
         [scriptblock]
         $ScriptBlock,
 
         [Parameter(ParameterSetName = 'Max')]
-        [ValidateSet('LRU')]
+        [ValidateSet('LRU','MRU')]
         [string]
         $EvictionPolicy,
 
-        [Parameter(Mandatory = $true, ParameterSetName = 'Max')]
+        [Parameter(ParameterSetName = 'Max')]
         [Alias('MaximumSize')]
+        [ValidateRange(2,2147483647)]
         [int]
         $Capacity = 1000
     )
@@ -31,9 +32,16 @@ function New-PSCache {
         }
     }
 
-    if($EvictionPolicy -eq 'LRU')
-    {
-        return [LRUCache]::new($ScriptBlock, $Max)
+    if($PSCmdlet.ParameterSetName -eq 'Max'){
+        if($EvictionPolicy -eq 'LRU'){
+            $cacheType = [LRUCache]
+        }
+
+        if($EvictionPolicy -eq 'MRU'){
+            $cacheType = [MRUCache]
+        }
+
+        return $cacheType::new($ScriptBlock, $Capacity)
     }
     return [PSObjectCache]::new($ScriptBlock)
 }
