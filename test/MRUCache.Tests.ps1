@@ -10,13 +10,13 @@ Describe 'New-PSCache works with MRU Policy' {
     }
 
     It 'Evicts Most-Recently Used entries' {
-        $LRUCache = New-PSCache { return $_ } -EvictionPolicy MRU -Capacity 3
+        $MRUCache = New-PSCache { return $_ } -EvictionPolicy MRU -Capacity 3
         1..4 |ForEach-Object {
-            [void]$LRUCache.Get($_)
+            [void]$MRUCache.Get($_)
         }
 
         # One over capacity, cache should evict 3 (most recently promoted before 4)
-        $LRUCache.Entries.First.Value.Key |Should Be 4
-        $LRUCache.LookupTable.ContainsKey(3) |Should Be $false
+        $MRUCache.Entries.First.Value.Key |Should Be 4
+        $MRUCache.LookupTable.ContainsKey(3) |Should Be $false
     }
 }

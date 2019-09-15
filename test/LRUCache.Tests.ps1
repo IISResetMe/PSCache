@@ -15,6 +15,7 @@ Describe 'New-PSCache works with LRU Policy' {
             [void]$LRUCache.Get($_)
         }
 
+        # One over capacity, cache should evict 1 (least recently promoted)
         $LRUCache.Entries.First.Value.Key |Should Be 4
         $LRUCache.LookupTable.ContainsKey(1) |Should Be $false
     }
