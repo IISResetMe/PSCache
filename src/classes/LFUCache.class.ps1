@@ -11,6 +11,7 @@ class LFUCacheEntry
     {
         $this.Key = $key
         $this.Item = $item
+        $this.Hits = 1
     }
 
     LFUCacheEntry($key,$item,$hits)
@@ -53,30 +54,29 @@ class LFUCache : PSObjectCache
     hidden [void]
     Promote([LinkedListNode[LFUCacheEntry]]$Node)
     {
-        $hitCount = $Node.Value.Hits
-        $hitList = $this.FrequencyTable[$hitCount]
-        $hitList.Remove($Node)
-        if($hitList.Count -lt 1){
-            [void]$this.FrequencyTable.Remove($hitCount)
-            if($hitCount -eq $this.MinHits){
-                $hitCount++
-            }
+        $list = $this.FrequencyTable[$Node.Value.Hits]
+        $list.Remove($Node)
+        if($list.Count -lt 1){
+            $this.FrequencyTable.Remove($Node.Value.Hits)
         }
+
+        if($this.MinHits -eq $Node.Value.Hits){
+            $this.MinHits++
+        }
+
         $Node.Value.Hit()
-        $newHitCount = $Node.Value.Hits
-        if(-not $this.FrequencyTable.ContainsKey($newHitCount)){
-            $this.FrequencyTable[$newHitCount] = [LinkedList[LFUCacheEntry]]::new()
+        if(-not $this.FrequencyTable.ContainsKey($Node.Value.Hits)){
+            $this.FrequencyTable[$Node.Value.Hits] = [LinkedList[LFUCacheEntry]]::new()
         }
-        [void]$this.FrequencyTable[$newHitCount].AddFirst($Node.Value)
+
+        $this.FrequencyTable[$Node.Value.Hits].AddFirst($Node)
     }
 
     [psobject]
     Get($Key){
         if($this.LookupTable.Contains($Key)){
-            $CacheEntry = $this.LookupTable[$Key]
-            $CacheEntry.Value.Hit()
-            $this.Promote($CacheEntry)
-            return $CacheEntry.Value.Item
+            $this.Promote($this.LookupTable[$Key])
+            return $this.LookupTable[$Key].Value.Item
         }
         else{
             try{
@@ -97,12 +97,12 @@ class LFUCache : PSObjectCache
     Add($key, $val) {
         if($this.LookupTable.Contains($key)){
             $this.LookupTable[$key].Value = $val
-            $this.Promote($this.LookupTable[$key])
         }
         else{
             while($this.LookupTable.Count -ge $this.Capacity){
                 $hitList = $this.FrequencyTable[$this.MinHits]
-                $lfuNode = $hitList.RemoveLast()
+                $lfuNode = $hitList.Last
+                $hitList.RemoveLast()
                 if($hitList.Count -lt 1){
                     $this.FrequencyTable.Remove($this.MinHits)
                 }
@@ -110,7 +110,7 @@ class LFUCache : PSObjectCache
             }
 
             $newEntry = [LFUCacheEntry]::new($key, $val)
-            $newEntry.Hit()
+            $this.MinHits = $newEntry.Hits
             if(-not $this.FrequencyTable.ContainsKey($newEntry.Hits)){
                 $this.FrequencyTable[$newEntry.Hits] = [LinkedList[LFUCacheEntry]]::new()
             }
