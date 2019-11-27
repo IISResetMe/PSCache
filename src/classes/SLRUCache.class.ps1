@@ -51,7 +51,7 @@ class SLRUCache : PSObjectCache
         $this.ProtectedEntries.AddFirst($Node)
 
         # Prune probationary segment
-        while($this.ProbationaryEntries.Count -ge $this.Capacity){
+        while($this.ProbationaryEntries.Count -gt $this.Capacity){
             $evictee = $this.ProbationaryEntries.Last
             $this.LookupTable.Remove($evictee.Value.Key)
             $this.ProbationaryEntries.RemoveLast()
