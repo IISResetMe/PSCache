@@ -46,14 +46,14 @@ Describe 'New-PSCache supports timed expiration' {
     It 'Evicts after expiration elapses' {
         $ExpiringCache = New-PSCache -ScriptBlock {
             return Get-Date
-        } -ExpireAfter (New-TimeSpan -Seconds 5)
+        } -ExpireAfter (New-TimeSpan -Seconds 2)
 
         $first = $ExpiringCache.Get(1)
         $second = $ExpiringCache.Get(1)
 
         $first -eq $second |Should -BeTrue
 
-        Start-Sleep -Seconds 5
+        Start-Sleep -Seconds 2
         $third = $ExpiringCache.Get(1)
         $second -eq $third |Should -BeFalse
     }
