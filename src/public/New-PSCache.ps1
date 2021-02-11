@@ -18,9 +18,8 @@ function New-PSCache {
         [int]
         $Capacity = 1000,
 
-        [Parameter(ParameterSetName = 'ExpireAfter')]
-        [ValidateScript({$_ -is [timespan] -or $([timespan]::TryParse($_,[ref]$null))})]
-        [object]
+        [Parameter(Mandatory,ParameterSetName = 'ExpireAfter')]
+        [timespan]
         $ExpireAfter
     )
 
@@ -53,7 +52,7 @@ function New-PSCache {
     }
 
     if($PSCmdlet.ParameterSetName -eq 'ExpireAfter'){
-        
+        return [ExpiringCache]::new($ScriptBlock, $ExpireAfter)
     }
     return [PSObjectCache]::new($ScriptBlock)
 }

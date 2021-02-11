@@ -45,3 +45,52 @@ class PSObjectCache
         $this.LookupTable.Clear()
     }
 }
+
+class ExpiringCacheEntry
+{
+    [object]$Item
+
+    [datetime]$EOL
+
+    ExpiringCacheEntry($item, [timespan]$expireAfter)
+    {
+        $this.Item = $item
+        $this.EOL = [datetime]::UtcNow.Add($expireAfter)
+    }
+}
+
+class ExpiringCache : PSObjectCache
+{
+    [timespan]$MaxAge
+
+    ExpiringCache([scriptblock]$Fetcher, [timespan]$ExpireAfter)
+        : base($Fetcher)
+    {
+        $this.MaxAge = $ExpireAfter
+    }
+
+    [psobject]
+    Get($Key)
+    {
+        if($this.LookupTable.Contains($Key)){
+            $existingItem = $this.LookupTable[$Key]
+            if($existingItem.EOL -gt [datetime]::UtcNow){
+                return $this.LookupTable[$Key].Item
+            }
+        }
+        else {
+        }
+
+        try{
+            $copy = & $this.Fetcher $Key
+        }
+        catch{
+            throw $_
+            return $null
+        }
+
+        $this.AddOrUpdate($Key, [ExpiringCacheEntry]::new($copy,$this.MaxAge))
+
+        return $copy
+    }
+}
