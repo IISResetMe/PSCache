@@ -16,7 +16,7 @@ Describe 'New-PSCache works with LRU Policy' {
         }
 
         # Two over capacity, cache should evict 2, then 3 (least recently promoted among the least frequently hit (2,3,4))
-        $EntryKeys = $LFUCache.LookupTable.Values.Value.Key |Sort-Object 
+        $EntryKeys = $LFUCache.LookupTable.get_Values().Value.Key  |Sort-Object 
         $EntryKeys[0] |Should -Be 1
         $EntryKeys[1] |Should -Be 4
         $EntryKeys[2] |Should -Be 5

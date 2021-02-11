@@ -36,7 +36,7 @@ class PSObjectCache
     }
 
     [void]Remove([scriptblock]$KeyPredicate){
-        foreach($key in $this.LookupTable.Keys.Where($KeyPredicate)){
+        foreach($key in $this.LookupTable.get_Keys().Where($KeyPredicate)){
             $this.Remove($key)
         }
     }

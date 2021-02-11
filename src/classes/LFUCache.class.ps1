@@ -99,7 +99,7 @@ class LFUCache : PSObjectCache
             $this.LookupTable[$key].Value = $val
         }
         else{
-            while($this.LookupTable.Count -ge $this.Capacity){
+            while($this.LookupTable.get_Count() -ge $this.Capacity){
                 $hitList = $this.FrequencyTable[$this.MinHits]
                 $lfuNode = $hitList.Last
                 $hitList.RemoveLast()
