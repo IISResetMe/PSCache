@@ -7,7 +7,7 @@ function New-PSCache {
         [scriptblock]
         $ScriptBlock,
 
-        [Parameter(ParameterSetName = 'Max')]
+        [Parameter(Mandatory, ParameterSetName = 'Max')]
         [ValidateSet('LRU','MRU','LFU')]
         [string]
         $EvictionPolicy,
@@ -16,7 +16,12 @@ function New-PSCache {
         [Alias('MaximumSize')]
         [ValidateRange(2,2147483647)]
         [int]
-        $Capacity = 1000
+        $Capacity = 1000,
+
+        [Parameter(ParameterSetName = 'ExpireAfter')]
+        [ValidateScript({$_ -is [timespan] -or $([timespan]::TryParse($_,[ref]$null))})]
+        [object]
+        $ExpireAfter
     )
 
     $AST = $ScriptBlock.Ast
@@ -45,6 +50,10 @@ function New-PSCache {
         }
 
         return $cacheType::new($ScriptBlock, $Capacity)
+    }
+
+    if($PSCmdlet.ParameterSetName -eq 'ExpireAfter'){
+        
     }
     return [PSObjectCache]::new($ScriptBlock)
 }
